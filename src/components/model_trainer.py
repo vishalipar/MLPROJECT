@@ -1,13 +1,10 @@
-import os 
+import os
 import sys
 from dataclasses import dataclass
 
 from catboost import CatBoostRegressor
-from sklearn.ensemble import (
-    AdaBoostRegressor,
-    GradientBoostingRegressor,
-    RandomForestRegressor,
-)
+from sklearn.ensemble import (AdaBoostRegressor, GradientBoostingRegressor,
+                              RandomForestRegressor)
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsRegressor
@@ -16,8 +13,8 @@ from xgboost import XGBRegressor
 
 from src.exception import CustomException
 from src.logger import logging
+from src.utils import evaluate_models, save_object
 
-from src.utils import save_object,evaluate_models
 
 @dataclass
 class ModelTrainerConfig:
@@ -41,14 +38,55 @@ class ModelTrainer:
                 "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
-                "Linear Regressor": LinearRegression(),
+                "Linear Regression": LinearRegression(),
                 "K-Neighbors Classifier": KNeighborsRegressor(),
                 "XGBClassifier": XGBRegressor(),
                 "CatBoosting Classifier": CatBoostRegressor(verbose=False),
                 "AdaBoost Classifier": AdaBoostRegressor(),
             }
+            params={
+                "Decision Tree": {
+                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                    
+                    
+                },
+                "Random Forest":{
+                    
+                    
+                    
+                    'n_estimators':[8,16,32,64,128,256]
+                },
+                "Gradient Boosting":{
+                    
+                    'learning_rate':[.1,.01,.05,.001],
+                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                    
+                    'n_estimators':[8,16,32,64,128,256]
+                },
+                "Linear Regression":{},
+                "K-Neighbors Classifier":{
+                    'n_neighbors':[5,7,9,11],
+                    
+                    
+                },
+                "XGBClassifier":{
+                    'learning_rate':[.1,.01,.05,.001],
+                    'n_estimators':[8,16,32,64,126,256]
+                },
+                "CatBoosting Classifier":{
+                    'depth': [6,8,10],
+                    'learning_rate':[0.01, 0.05,0.1],
+                    'iterations': [30,50,100]
+                },
+                "AdaBoost Classifier":{
+                    'learning_rate':[.1,.01,0.5,.001],
+                    
+                    'n_estimators':[8,16,32,64,128,256]
+                }
+                
+            }
             
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models)
+            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models, param=params)
             
             
             # TO get best model score from dict
